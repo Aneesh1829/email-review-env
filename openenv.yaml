@@ -1,0 +1,41 @@
+name: email_review_env
+version: "1.0.0"
+description: >
+  A real-world customer support email triage environment.
+  An AI agent learns to categorize, prioritize, and draft replies
+  to customer support emails with increasing difficulty.
+  Tasks range from simple billing queries (Easy) to complex
+  multi-issue emails involving angry premium subscribers (Hard).
+
+author: your-hf-username
+license: MIT
+
+environment:
+  type: text
+  tasks:
+    - id: task_1_easy
+      difficulty: easy
+      description: "Simple billing double-charge complaint"
+    - id: task_2_medium
+      difficulty: medium
+      description: "Angry premium subscriber with service outage"
+    - id: task_3_hard
+      difficulty: hard
+      description: "Complex dual-issue: API auth failure + wrong billing tier"
+
+api:
+  reset: true
+  step: true
+  state: true
+
+scoring:
+  min: 0.0
+  max: 1.0
+  partial_credit: true
+
+tags:
+  - nlp
+  - customer-support
+  - email
+  - real-world
+  - triage
