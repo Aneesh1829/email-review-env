@@ -5,17 +5,15 @@ import sys
 import requests
 from openai import OpenAI
 
-# Required env vars — API_BASE_URL and MODEL_NAME have defaults, HF_TOKEN does NOT
 API_BASE_URL     = os.getenv("API_BASE_URL", "https://api-inference.huggingface.co/v1")
 MODEL_NAME       = os.getenv("MODEL_NAME",   "meta-llama/Llama-3.1-8B-Instruct")
 HF_TOKEN         = os.getenv("HF_TOKEN")
 LOCAL_IMAGE_NAME = os.getenv("LOCAL_IMAGE_NAME")
 ENV_URL          = os.getenv("ENV_URL", "https://jhansiy1-email-review-env.hf.space")
 
-TASK_NAME  = "email_triage"
-BENCHMARK  = "email_review"
+TASK_NAME = "email_triage"
+BENCHMARK = "email_review"
 
-# OpenAI client — uses HF_TOKEN, falls back to dummy only for env testing
 client = OpenAI(
     base_url=API_BASE_URL,
     api_key=HF_TOKEN if HF_TOKEN else "hf-no-token-set",
@@ -24,10 +22,10 @@ client = OpenAI(
 SYSTEM_PROMPT = (
     "You are an expert customer support email triage agent. "
     "Analyze the email carefully and respond with ONLY a valid JSON object "
-    "with exactly these three fields:\n"
-    "category: one of billing, technical, general, complaint\n"
-    "priority: one of low, medium, high, urgent\n"
-    "reply_draft: professional empathetic reply minimum 80 words.\n"
+    "with exactly these three fields: "
+    "category (one of: billing, technical, general, complaint), "
+    "priority (one of: low, medium, high, urgent), "
+    "reply_draft (professional empathetic reply minimum 80 words). "
     "No markdown. No explanation. Raw JSON only."
 )
 
@@ -65,7 +63,7 @@ def call_llm(subject, body, sender):
                     {"role": "user", "content": (
                         "From: " + sender + "\n"
                         "Subject: " + subject + "\n\n"
-                        + body + "\n\nRespond with JSON only."
+                        + body + "\n\nJSON only:"
                     )},
                 ],
                 max_tokens=600,
@@ -78,18 +76,15 @@ def call_llm(subject, body, sender):
                 if raw.startswith("json"):
                     raw = raw[4:]
             parsed = json.loads(raw.strip())
-            assert "category" in parsed
-            assert "priority" in parsed
-            assert "reply_draft" in parsed
+            assert "category" in parsed and "priority" in parsed and "reply_draft" in parsed
             return parsed
         except Exception:
             time.sleep(1)
-    # Fallback — deterministic, based on keywords
     subj_lower = subject.lower()
     body_lower = body.lower()
-    if "invoice" in subj_lower or "charge" in body_lower or "refund" in body_lower or "billing" in body_lower:
+    if "invoice" in subj_lower or "refund" in body_lower or "charge" in body_lower or "billing" in body_lower:
         cat, pri = "billing", "high"
-    elif "api" in subj_lower or "error" in body_lower or "401" in body_lower or "technical" in body_lower:
+    elif "api" in subj_lower or "401" in body_lower or "technical" in body_lower or "error" in body_lower:
         cat, pri = "technical", "urgent"
     elif "frustrated" in subj_lower or "furious" in body_lower or "unacceptable" in body_lower:
         cat, pri = "complaint", "urgent"
@@ -99,12 +94,12 @@ def call_llm(subject, body, sender):
         "category": cat,
         "priority": pri,
         "reply_draft": (
-            "Dear " + sender + ", I sincerely apologize for the issue you are experiencing. "
-            "I have reviewed your request and am escalating it immediately to ensure a prompt "
-            "resolution. Our team is treating this as a high priority matter. You can expect "
-            "a detailed follow-up within 24 hours. We deeply value your relationship with us "
-            "and are committed to resolving this to your complete satisfaction. Thank you for "
-            "your patience and understanding."
+            "Dear " + sender + ", I sincerely apologize for the issue you are experiencing with us. "
+            "I have reviewed your request carefully and am escalating it immediately to ensure "
+            "a prompt and complete resolution. Our team is treating this as the highest priority. "
+            "You can expect a detailed follow-up within 24 hours. We deeply value your relationship "
+            "with us and are fully committed to resolving this to your complete satisfaction. "
+            "Thank you for your patience and understanding during this time."
         ),
     }
 
@@ -125,27 +120,21 @@ def run():
 
         while not data.get("done", False):
             steps += 1
-
             subject = obs.get("email_subject", "")
             body    = obs.get("email_body",    "")
             sender  = obs.get("sender_name",   "")
-
             llm_out = call_llm(subject, body, sender)
-
             action = {
                 "category":    llm_out.get("category",    "general"),
                 "priority":    llm_out.get("priority",    "medium"),
-                "reply_draft": llm_out.get("reply_draft", "Thank you for contacting us."),
+                "reply_draft": llm_out.get("reply_draft", "Thank you for contacting us. We will resolve your issue promptly."),
             }
-
             r    = requests.post(ENV_URL + "/step", json={"action": action}, timeout=30)
             data = r.json()
-
             reward = float(data.get("reward", 0.0))
             done   = bool(data.get("done",   False))
             obs    = data.get("observation", {})
             rewards.append(reward)
-
             log_step(steps, action, reward, done)
 
         success = True
