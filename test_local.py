@@ -10,6 +10,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import yaml
 from server.app import list_tasks
+from tasks import TASKS as ROOT_TASKS
 
 from models import EmailAction
 from server.environment import EmailReviewEnvironment, TASKS, grade_action
@@ -181,6 +182,14 @@ check(len(runtime_tasks) >= 3, f"/tasks exposes at least 3 tasks (got {len(runti
 for task in runtime_tasks:
     check(bool(task.get("grader")), f"/tasks entry '{task.get('id', '?')}' exposes grader")
     check(bool(task.get("has_grader")), f"/tasks entry '{task.get('id', '?')}' marks has_grader")
+    check(bool(task.get("grader_fn")), f"/tasks entry '{task.get('id', '?')}' exposes grader_fn")
+
+
+section("11. Root task registry exposes 3 graded tasks")
+check(len(ROOT_TASKS) >= 3, f"Root tasks.py exposes at least 3 tasks (got {len(ROOT_TASKS)})")
+for task in ROOT_TASKS:
+    check(bool(task.get("grader")), f"Root task '{task.get('id', '?')}' has grader")
+    check(bool(task.get("grader_fn")), f"Root task '{task.get('id', '?')}' has grader_fn")
 
 
 print(f"\n{'='*50}")

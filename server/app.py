@@ -88,9 +88,11 @@ def list_tasks():
         "tasks": [
             {
                 "id": t["id"],
+                "name": t["id"],
                 "difficulty": t["difficulty"],
                 "description": t.get("description", ""),
                 "grader": t.get("grader", ""),
+                "grader_fn": t.get("grader", ""),
                 "has_grader": bool(t.get("grader")),
             }
             for t in TASKS
