@@ -9,6 +9,7 @@ import sys, os, random
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import yaml
+from server.app import list_tasks
 
 from models import EmailAction
 from server.environment import EmailReviewEnvironment, TASKS, grade_action
@@ -110,11 +111,13 @@ check(obs2.email_subject == TASKS[0]["email_subject"], "Second reset() works fin
 section("6. Task structure validation")
 required_fields = ["id","difficulty","sender_name","email_subject","email_body",
                    "task_description","correct_category","correct_priority",
-                   "required_keywords","forbidden_phrases","min_reply_length"]
+                   "required_keywords","forbidden_phrases","min_reply_length","grader"]
 check(len(TASKS) >= 3, f"At least 3 tasks defined (got {len(TASKS)})")
 for i, task in enumerate(TASKS):
     for f in required_fields:
         check(f in task, f"Task {i+1} has field '{f}'")
+    check(bool(task["grader"].get("module")), f"Task {i+1} grader has module")
+    check(bool(task["grader"].get("function")), f"Task {i+1} grader has function")
 difficulties = [t["difficulty"] for t in TASKS]
 for d in ["easy", "medium", "hard"]:
     check(d in difficulties, f"Has a '{d}' task")
@@ -153,6 +156,15 @@ sample_action = EmailAction(
 check("score" in grade_task_1(sample_action), "grade_task_1 returns a score payload")
 check("score" in grade_task_2(sample_action), "grade_task_2 returns a score payload")
 check("score" in grade_task_3(sample_action), "grade_task_3 returns a score payload")
+
+
+section("10. Runtime task endpoint exposes grader metadata")
+task_payload = list_tasks()
+runtime_tasks = task_payload.get("tasks", [])
+check(len(runtime_tasks) >= 3, f"/tasks exposes at least 3 tasks (got {len(runtime_tasks)})")
+for task in runtime_tasks:
+    check(bool(task.get("grader")), f"/tasks entry '{task.get('id', '?')}' exposes grader")
+    check(bool(task.get("has_grader")), f"/tasks entry '{task.get('id', '?')}' marks has_grader")
 
 
 print(f"\n{'='*50}")

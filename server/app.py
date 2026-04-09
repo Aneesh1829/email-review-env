@@ -79,7 +79,18 @@ def state(session_id: str = DEFAULT):
 @app.get("/tasks")
 def list_tasks():
     from server.environment import TASKS
-    return {"tasks": [{"id": t["id"], "difficulty": t["difficulty"]} for t in TASKS]}
+    return {
+        "tasks": [
+            {
+                "id": t["id"],
+                "difficulty": t["difficulty"],
+                "description": t.get("description", ""),
+                "grader": t.get("grader", {}),
+                "has_grader": bool(t.get("grader")),
+            }
+            for t in TASKS
+        ]
+    }
 
 def main():
 

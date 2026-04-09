@@ -14,6 +14,7 @@ TASKS = [
     {
         "id": "task_1_easy",
         "difficulty": "easy",
+        "description": "Simple billing double-charge complaint",
         "sender_name": "Priya Sharma",
         "email_subject": "Invoice question",
         "email_body": (
@@ -28,10 +29,16 @@ TASKS = [
         "required_keywords": ["refund", "account", "apologize"],
         "forbidden_phrases": ["cannot help", "not our problem"],
         "min_reply_length": 40,
+        "grader": {
+            "module": "server.graders",
+            "function": "grade_task_1",
+            "type": "python",
+        },
     },
     {
         "id": "task_2_medium",
         "difficulty": "medium",
+        "description": "Angry premium subscriber with service outage",
         "sender_name": "Ravi Menon",
         "email_subject": "EXTREMELY FRUSTRATED - service has been down for 3 days!!!",
         "email_body": (
@@ -48,10 +55,16 @@ TASKS = [
         "required_keywords": ["apologize", "escalat", "premium", "resolve"],
         "forbidden_phrases": ["we understand your frustration", "valued customer"],
         "min_reply_length": 60,
+        "grader": {
+            "module": "server.graders",
+            "function": "grade_task_2",
+            "type": "python",
+        },
     },
     {
         "id": "task_3_hard",
         "difficulty": "hard",
+        "description": "Complex dual-issue: API auth failure + wrong billing tier",
         "sender_name": "Ananya Krishnan",
         "email_subject": "API authentication failing + wrong billing tier",
         "email_body": (
@@ -68,6 +81,11 @@ TASKS = [
         "required_keywords": ["401", "api", "billing", "enterprise", "account", "escalat"],
         "forbidden_phrases": ["we cannot", "not possible"],
         "min_reply_length": 80,
+        "grader": {
+            "module": "server.graders",
+            "function": "grade_task_3",
+            "type": "python",
+        },
     },
 ]
 
