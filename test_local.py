@@ -136,6 +136,7 @@ for i, task in enumerate(TASKS):
     for f in required_fields:
         check(f in task, f"Task {i+1} has field '{f}'")
     check(isinstance(task["grader"], str), f"Task {i+1} grader is string-based")
+    check(task["grader"].startswith("tasks."), f"Task {i+1} grader points into tasks package")
     check(":" in task["grader"], f"Task {i+1} grader has module:function format")
 difficulties = [t["difficulty"] for t in TASKS]
 for d in ["easy", "medium", "hard"]:
@@ -163,6 +164,7 @@ check(len(manifest_tasks) >= 3, f"Manifest has at least 3 top-level tasks (got {
 for task in manifest_tasks:
     grader = task.get("grader") or ""
     check(isinstance(grader, str), f"Manifest task '{task.get('id', task.get('name', '?'))}' has string grader")
+    check(grader.startswith("tasks."), f"Manifest task '{task.get('id', task.get('name', '?'))}' grader points into tasks package")
     check(":" in grader, f"Manifest task '{task.get('id', task.get('name', '?'))}' grader uses module:function format")
 
 
