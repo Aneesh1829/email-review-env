@@ -22,6 +22,8 @@ class StepRequest(BaseModel):
 
 class ResetRequest(BaseModel):
     session_id: Optional[str] = DEFAULT
+    task_id: Optional[str] = None
+    task_name: Optional[str] = None
 
 
 @app.get("/health")
@@ -32,10 +34,13 @@ def health():
 @app.post("/reset")
 def reset(req: Optional[ResetRequest] = None):
     sid = req.session_id if req else DEFAULT
+    task_id = None
+    if req:
+        task_id = req.task_id or req.task_name
     with _lock:
         env = EmailReviewEnvironment()
         _sessions[sid] = env
-    obs = env.reset()
+    obs = env.reset(task_id=task_id)
     return {
         "observation": obs.model_dump(),
         "reward": 0.0,

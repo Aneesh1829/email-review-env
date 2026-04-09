@@ -130,16 +130,27 @@ class EmailReviewEnvironment:
         self._episode_id = str(uuid4())
         self._step_count = 0
         self._task_index = 0
+        self._active_tasks = TASKS
         self._scores = []
         self.state = SimpleState(self._episode_id, 0)
 
-    def reset(self):
+    def reset(self, task_id=None):
         self._episode_id = str(uuid4())
         self._step_count = 0
         self._task_index = 0
         self._scores = []
         self.state = SimpleState(self._episode_id, 0)
-        t = TASKS[0]
+        if task_id:
+            matched = next(
+                (task for task in TASKS if task["id"] == task_id or task.get("name") == task_id),
+                None,
+            )
+            if not matched:
+                raise ValueError("Unknown task_id: " + str(task_id))
+            self._active_tasks = [matched]
+        else:
+            self._active_tasks = TASKS
+        t = self._active_tasks[0]
         return EmailObservation(
             email_subject=t["email_subject"],
             email_body=t["email_body"],
@@ -156,7 +167,7 @@ class EmailReviewEnvironment:
         self._step_count += 1
         self.state = SimpleState(self._episode_id, self._step_count)
 
-        if self._task_index >= len(TASKS):
+        if self._task_index >= len(self._active_tasks):
             return EmailObservation(
                 email_subject="Done",
                 email_body="All tasks complete. Call reset().",
@@ -169,11 +180,11 @@ class EmailReviewEnvironment:
                 reward=0.0,
             )
 
-        t = TASKS[self._task_index]
+        t = self._active_tasks[self._task_index]
         score, breakdown = grade_action(t, action)
         self._scores.append(score)
         self._task_index += 1
-        finished = (self._task_index >= len(TASKS))
+        finished = (self._task_index >= len(self._active_tasks))
 
         if finished:
             avg = round(sum(self._scores) / len(self._scores), 3)
@@ -189,7 +200,7 @@ class EmailReviewEnvironment:
                 reward=score,
             )
 
-        nt = TASKS[self._task_index]
+        nt = self._active_tasks[self._task_index]
         return EmailObservation(
             email_subject=nt["email_subject"],
             email_body=nt["email_body"],

@@ -107,6 +107,22 @@ check(r3.reward > 0.3, f"Task 3 has reward > 0.3 (got {r3.reward})")
 obs2 = env.reset()
 check(obs2.email_subject == TASKS[0]["email_subject"], "Second reset() works fine")
 
+section("5b. Single-task reset works")
+single_env = EmailReviewEnvironment()
+single_obs = single_env.reset(task_id="task_2_medium")
+check(single_obs.email_subject == TASKS[1]["email_subject"], "reset(task_id) selects requested task")
+single_result = single_env.step(EmailAction(
+    category="complaint", priority="urgent",
+    reply_draft=(
+        "Dear Ravi, I sincerely apologize for the outage and lack of timely support. "
+        "As a premium customer, you deserved a faster response. "
+        "I am escalating this issue to our senior team immediately so we can resolve the service disruption quickly. "
+        "We are reviewing the impact on your premium account and will review refund and compensation with urgency. "
+        "Thank you for your patience while we work to resolve this today."
+    )
+))
+check(single_result.done, "Single-task reset finishes after one graded step")
+
 
 section("6. Task structure validation")
 required_fields = ["id","difficulty","sender_name","email_subject","email_body",
