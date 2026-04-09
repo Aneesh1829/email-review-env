@@ -12,6 +12,7 @@ import yaml
 from server.app import list_tasks
 from tasks import TASKS as ROOT_TASKS
 from graders import GRADERS
+from src.email_review_env.tasks import TASKS as SRC_TASKS
 
 from models import EmailAction
 from server.environment import EmailReviewEnvironment, TASKS, grade_action
@@ -191,12 +192,20 @@ check(len(ROOT_TASKS) >= 3, f"Root tasks.py exposes at least 3 tasks (got {len(R
 for task in ROOT_TASKS:
     check(bool(task.get("grader")), f"Root task '{task.get('id', '?')}' has grader")
     check(bool(task.get("grader_fn")), f"Root task '{task.get('id', '?')}' has grader_fn")
+    check(callable(task.get("grader")), f"Root task '{task.get('id', '?')}' grader is callable")
 
 
 section("12. Root GRADERS mapping covers all tasks")
 check(len(GRADERS) >= 3, f"Root GRADERS has at least 3 entries (got {len(GRADERS)})")
 for task in ROOT_TASKS:
     check(task["id"] in GRADERS, f"GRADERS contains '{task['id']}'")
+
+
+section("13. Src task registry exposes callable graders")
+check(len(SRC_TASKS) >= 3, f"src task registry exposes at least 3 tasks (got {len(SRC_TASKS)})")
+for task in SRC_TASKS:
+    check(callable(task.get("grader")), f"src task '{task.get('id', '?')}' grader is callable")
+    check(bool(task.get("grader_fn")), f"src task '{task.get('id', '?')}' keeps string grader ref")
 
 
 print(f"\n{'='*50}")

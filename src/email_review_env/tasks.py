@@ -13,7 +13,6 @@ def _normalize_task(task):
         "grader": grader_callable,
         "grader_callable": grader_callable,
         "grader_fn": grader_ref,
-        "grader_function": grader_ref,
         "grader_ref": grader_ref,
         "grader_name": grader_callable.__name__,
         "module": grader_callable.__module__,
