@@ -11,6 +11,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import yaml
 from server.app import list_tasks
 from tasks import TASKS as ROOT_TASKS
+from graders import GRADERS
 
 from models import EmailAction
 from server.environment import EmailReviewEnvironment, TASKS, grade_action
@@ -190,6 +191,12 @@ check(len(ROOT_TASKS) >= 3, f"Root tasks.py exposes at least 3 tasks (got {len(R
 for task in ROOT_TASKS:
     check(bool(task.get("grader")), f"Root task '{task.get('id', '?')}' has grader")
     check(bool(task.get("grader_fn")), f"Root task '{task.get('id', '?')}' has grader_fn")
+
+
+section("12. Root GRADERS mapping covers all tasks")
+check(len(GRADERS) >= 3, f"Root GRADERS has at least 3 entries (got {len(GRADERS)})")
+for task in ROOT_TASKS:
+    check(task["id"] in GRADERS, f"GRADERS contains '{task['id']}'")
 
 
 print(f"\n{'='*50}")

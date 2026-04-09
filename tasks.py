@@ -18,3 +18,4 @@ def _normalize_task(task):
 
 TASKS = [_normalize_task(task) for task in SERVER_TASKS]
 TASK_MAP = {task["id"]: task for task in TASKS}
+TASK_REGISTRY = TASK_MAP

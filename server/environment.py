@@ -5,9 +5,10 @@ from models import EmailAction, EmailObservation
 
 
 class SimpleState:
-    def __init__(self, episode_id, step_count=0):
+    def __init__(self, episode_id, step_count=0, task_id=None):
         self.episode_id = episode_id
         self.step_count = step_count
+        self.task_id = task_id
 
 
 TASKS = [
@@ -132,14 +133,13 @@ class EmailReviewEnvironment:
         self._task_index = 0
         self._active_tasks = TASKS
         self._scores = []
-        self.state = SimpleState(self._episode_id, 0)
+        self.state = SimpleState(self._episode_id, 0, None)
 
     def reset(self, task_id=None):
         self._episode_id = str(uuid4())
         self._step_count = 0
         self._task_index = 0
         self._scores = []
-        self.state = SimpleState(self._episode_id, 0)
         if task_id:
             matched = next(
                 (task for task in TASKS if task["id"] == task_id or task.get("name") == task_id),
@@ -151,6 +151,7 @@ class EmailReviewEnvironment:
         else:
             self._active_tasks = TASKS
         t = self._active_tasks[0]
+        self.state = SimpleState(self._episode_id, 0, t["id"])
         return EmailObservation(
             email_subject=t["email_subject"],
             email_body=t["email_body"],
@@ -165,7 +166,10 @@ class EmailReviewEnvironment:
 
     def step(self, action: EmailAction):
         self._step_count += 1
-        self.state = SimpleState(self._episode_id, self._step_count)
+        current_task_id = None
+        if self._task_index < len(self._active_tasks):
+            current_task_id = self._active_tasks[self._task_index]["id"]
+        self.state = SimpleState(self._episode_id, self._step_count, current_task_id)
 
         if self._task_index >= len(self._active_tasks):
             return EmailObservation(
@@ -188,6 +192,7 @@ class EmailReviewEnvironment:
 
         if finished:
             avg = round(sum(self._scores) / len(self._scores), 3)
+            self.state = SimpleState(self._episode_id, self._step_count, t["id"])
             return EmailObservation(
                 email_subject="All tasks complete",
                 email_body="Scores: " + str(self._scores) + " Average: " + str(avg),
@@ -201,6 +206,7 @@ class EmailReviewEnvironment:
             )
 
         nt = self._active_tasks[self._task_index]
+        self.state = SimpleState(self._episode_id, self._step_count, nt["id"])
         return EmailObservation(
             email_subject=nt["email_subject"],
             email_body=nt["email_body"],
