@@ -1,6 +1,6 @@
 [build-system]
 requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.backends.legacy:build"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "email_review_env"
@@ -21,3 +21,10 @@ dependencies = [
 # 🔥 ADD THIS PART HERE (very important)
 [project.scripts]
 server = "server.app:main"
+
+[tool.setuptools]
+py-modules = ["graders", "models", "client", "inference", "app", "test_local"]
+packages = ["server", "tasks", "tasks.task_1_easy", "tasks.task_2_medium", "tasks.task_3_hard", "email_review_env"]
+
+[tool.setuptools.package-dir]
+email_review_env = "src/email_review_env"
