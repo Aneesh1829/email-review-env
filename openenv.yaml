@@ -1,5 +1,6 @@
 name: email_review_env
 version: "1.0.0"
+openenv_version: "0.2.0"
 description: >
   A real-world customer support email triage environment.
   An AI agent learns to categorize, prioritize, and draft replies
@@ -9,19 +10,63 @@ description: >
 
 author: JhansiY1
 license: MIT
+observation_type: models.EmailObservation
+action_type: models.EmailAction
+max_episode_steps: 3
 
 environment:
   type: text
   tasks:
     - id: task_1_easy
+      name: easy
       difficulty: easy
       description: "Simple billing double-charge complaint"
+      max_steps: 1
+      grader:
+        module: server.graders
+        function: grade_task_1
     - id: task_2_medium
+      name: medium
       difficulty: medium
       description: "Angry premium subscriber with service outage"
+      max_steps: 1
+      grader:
+        module: server.graders
+        function: grade_task_2
     - id: task_3_hard
+      name: hard
       difficulty: hard
       description: "Complex dual-issue: API auth failure + wrong billing tier"
+      max_steps: 1
+      grader:
+        module: server.graders
+        function: grade_task_3
+
+tasks:
+  - id: task_1_easy
+    name: easy
+    difficulty: easy
+    description: "Simple billing double-charge complaint"
+    max_steps: 1
+    grader:
+      module: server.graders
+      function: grade_task_1
+  - id: task_2_medium
+    name: medium
+    difficulty: medium
+    description: "Angry premium subscriber with service outage"
+    max_steps: 1
+    grader:
+      module: server.graders
+      function: grade_task_2
+  - id: task_3_hard
+    name: hard
+    difficulty: hard
+    description: "Complex dual-issue: API auth failure + wrong billing tier"
+    max_steps: 1
+    grader:
+      module: server.graders
+      function: grade_task_3
 
 api:
   reset: true
@@ -39,3 +84,7 @@ tags:
   - email
   - real-world
   - triage
+
+grader:
+  module: server.graders
+  function: grade_task

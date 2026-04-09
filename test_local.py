@@ -8,8 +8,11 @@ All tests should show PASS.
 import sys, os, random
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+import yaml
+
 from models import EmailAction
 from server.environment import EmailReviewEnvironment, TASKS, grade_action
+from server.graders import grade_task_1, grade_task_2, grade_task_3
 
 _failed = False
 
@@ -73,7 +76,7 @@ r1 = env.step(EmailAction(
     reply_draft="Dear Priya, apologies for the double charge on your account. Refund will be processed immediately. We will escalate and ensure this doesn't happen again."
 ))
 check(r1.reward > 0.3, f"Task 1 has reward > 0.3 (got {r1.reward})")
-check(not r1.observation.done, "Task 1 not yet done")
+check(not r1.done, "Task 1 not yet done")
 
 r2 = env.step(EmailAction(
     category="complaint", priority="urgent",
@@ -84,7 +87,7 @@ r2 = env.step(EmailAction(
     )
 ))
 check(r2.reward > 0.3, f"Task 2 has reward > 0.3 (got {r2.reward})")
-check(not r2.observation.done, "Task 2 not yet done")
+check(not r2.done, "Task 2 not yet done")
 
 r3 = env.step(EmailAction(
     category="technical", priority="urgent",
@@ -97,7 +100,7 @@ r3 = env.step(EmailAction(
         "Your SLA and dedicated support will be restored within 4 hours."
     )
 ))
-check(r3.observation.done, "Task 3 marks episode done=True")
+check(r3.done, "Task 3 marks episode done=True")
 check(r3.reward > 0.3, f"Task 3 has reward > 0.3 (got {r3.reward})")
 
 obs2 = env.reset()
@@ -127,6 +130,29 @@ for task in TASKS:
         )
         s, _ = grade_action(task, action)
         check(0.0 <= s <= 1.0, f"Score {s:.3f} in [0,1] for task '{task['id']}'")
+
+
+section("8. Manifest exposes graders for all tasks")
+with open("openenv.yaml", "r", encoding="utf-8") as f:
+    manifest = yaml.safe_load(f)
+
+manifest_tasks = manifest.get("tasks") or []
+check(len(manifest_tasks) >= 3, f"Manifest has at least 3 top-level tasks (got {len(manifest_tasks)})")
+for task in manifest_tasks:
+    grader = task.get("grader") or {}
+    check(bool(grader.get("module")), f"Manifest task '{task.get('id', task.get('name', '?'))}' has grader.module")
+    check(bool(grader.get("function")), f"Manifest task '{task.get('id', task.get('name', '?'))}' has grader.function")
+
+
+section("9. Manifest grader functions are callable")
+sample_action = EmailAction(
+    category="billing",
+    priority="high",
+    reply_draft="I apologize for the billing issue on your account and will process the refund immediately."
+)
+check("score" in grade_task_1(sample_action), "grade_task_1 returns a score payload")
+check("score" in grade_task_2(sample_action), "grade_task_2 returns a score payload")
+check("score" in grade_task_3(sample_action), "grade_task_3 returns a score payload")
 
 
 print(f"\n{'='*50}")
