@@ -29,11 +29,7 @@ TASKS = [
         "required_keywords": ["refund", "account", "apologize"],
         "forbidden_phrases": ["cannot help", "not our problem"],
         "min_reply_length": 40,
-        "grader": {
-            "module": "server.graders",
-            "function": "grade_task_1",
-            "type": "python",
-        },
+        "grader": "server.graders:grade_task_1",
     },
     {
         "id": "task_2_medium",
@@ -55,11 +51,7 @@ TASKS = [
         "required_keywords": ["apologize", "escalat", "premium", "resolve"],
         "forbidden_phrases": ["we understand your frustration", "valued customer"],
         "min_reply_length": 60,
-        "grader": {
-            "module": "server.graders",
-            "function": "grade_task_2",
-            "type": "python",
-        },
+        "grader": "server.graders:grade_task_2",
     },
     {
         "id": "task_3_hard",
@@ -81,11 +73,7 @@ TASKS = [
         "required_keywords": ["401", "api", "billing", "enterprise", "account", "escalat"],
         "forbidden_phrases": ["we cannot", "not possible"],
         "min_reply_length": 80,
-        "grader": {
-            "module": "server.graders",
-            "function": "grade_task_3",
-            "type": "python",
-        },
+        "grader": "server.graders:grade_task_3",
     },
 ]
 

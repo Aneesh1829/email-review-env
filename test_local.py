@@ -116,8 +116,8 @@ check(len(TASKS) >= 3, f"At least 3 tasks defined (got {len(TASKS)})")
 for i, task in enumerate(TASKS):
     for f in required_fields:
         check(f in task, f"Task {i+1} has field '{f}'")
-    check(bool(task["grader"].get("module")), f"Task {i+1} grader has module")
-    check(bool(task["grader"].get("function")), f"Task {i+1} grader has function")
+    check(isinstance(task["grader"], str), f"Task {i+1} grader is string-based")
+    check(":" in task["grader"], f"Task {i+1} grader has module:function format")
 difficulties = [t["difficulty"] for t in TASKS]
 for d in ["easy", "medium", "hard"]:
     check(d in difficulties, f"Has a '{d}' task")
@@ -142,9 +142,9 @@ with open("openenv.yaml", "r", encoding="utf-8") as f:
 manifest_tasks = manifest.get("tasks") or []
 check(len(manifest_tasks) >= 3, f"Manifest has at least 3 top-level tasks (got {len(manifest_tasks)})")
 for task in manifest_tasks:
-    grader = task.get("grader") or {}
-    check(bool(grader.get("module")), f"Manifest task '{task.get('id', task.get('name', '?'))}' has grader.module")
-    check(bool(grader.get("function")), f"Manifest task '{task.get('id', task.get('name', '?'))}' has grader.function")
+    grader = task.get("grader") or ""
+    check(isinstance(grader, str), f"Manifest task '{task.get('id', task.get('name', '?'))}' has string grader")
+    check(":" in grader, f"Manifest task '{task.get('id', task.get('name', '?'))}' grader uses module:function format")
 
 
 section("9. Manifest grader functions are callable")

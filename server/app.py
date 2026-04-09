@@ -85,7 +85,7 @@ def list_tasks():
                 "id": t["id"],
                 "difficulty": t["difficulty"],
                 "description": t.get("description", ""),
-                "grader": t.get("grader", {}),
+                "grader": t.get("grader", ""),
                 "has_grader": bool(t.get("grader")),
             }
             for t in TASKS

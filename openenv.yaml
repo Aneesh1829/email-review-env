@@ -22,25 +22,19 @@ environment:
       difficulty: easy
       description: "Simple billing double-charge complaint"
       max_steps: 1
-      grader:
-        module: server.graders
-        function: grade_task_1
+      grader: "server.graders:grade_task_1"
     - id: task_2_medium
       name: medium
       difficulty: medium
       description: "Angry premium subscriber with service outage"
       max_steps: 1
-      grader:
-        module: server.graders
-        function: grade_task_2
+      grader: "server.graders:grade_task_2"
     - id: task_3_hard
       name: hard
       difficulty: hard
       description: "Complex dual-issue: API auth failure + wrong billing tier"
       max_steps: 1
-      grader:
-        module: server.graders
-        function: grade_task_3
+      grader: "server.graders:grade_task_3"
 
 tasks:
   - id: task_1_easy
@@ -48,25 +42,19 @@ tasks:
     difficulty: easy
     description: "Simple billing double-charge complaint"
     max_steps: 1
-    grader:
-      module: server.graders
-      function: grade_task_1
+    grader: "server.graders:grade_task_1"
   - id: task_2_medium
     name: medium
     difficulty: medium
     description: "Angry premium subscriber with service outage"
     max_steps: 1
-    grader:
-      module: server.graders
-      function: grade_task_2
+    grader: "server.graders:grade_task_2"
   - id: task_3_hard
     name: hard
     difficulty: hard
     description: "Complex dual-issue: API auth failure + wrong billing tier"
     max_steps: 1
-    grader:
-      module: server.graders
-      function: grade_task_3
+    grader: "server.graders:grade_task_3"
 
 api:
   reset: true
@@ -85,6 +73,4 @@ tags:
   - real-world
   - triage
 
-grader:
-  module: server.graders
-  function: grade_task
+grader: "server.graders:grade_task"
