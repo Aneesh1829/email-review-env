@@ -1,9 +1,9 @@
 from uuid import uuid4
 
 try:
-    from email_review_env.models import EmailAction, EmailObservation
-except ModuleNotFoundError:
     from models import EmailAction, EmailObservation
+except ModuleNotFoundError:
+    from email_review_env.models import EmailAction, EmailObservation
 
 
 class SimpleState:

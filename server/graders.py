@@ -5,9 +5,9 @@ from typing import Any
 from server.environment import TASKS, grade_action
 
 try:
-    from email_review_env.models import EmailAction
-except ModuleNotFoundError:
     from models import EmailAction
+except ModuleNotFoundError:
+    from email_review_env.models import EmailAction
 
 
 TASKS_BY_ID = {task["id"]: task for task in TASKS}
