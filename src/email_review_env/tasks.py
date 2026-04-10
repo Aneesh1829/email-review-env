@@ -1,4 +1,8 @@
-from graders import GRADERS
+try:
+    from .graders import GRADERS
+except ImportError:
+    from graders import GRADERS
+
 from server.environment import TASKS as SERVER_TASKS
 
 

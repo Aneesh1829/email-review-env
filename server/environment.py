@@ -1,7 +1,9 @@
 from uuid import uuid4
-import sys, os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from models import EmailAction, EmailObservation
+
+try:
+    from email_review_env.models import EmailAction, EmailObservation
+except ModuleNotFoundError:
+    from models import EmailAction, EmailObservation
 
 
 class SimpleState:

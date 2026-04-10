@@ -10,8 +10,8 @@ description: >
 
 author: JhansiY1
 license: MIT
-observation_type: models.EmailObservation
-action_type: models.EmailAction
+observation_type: email_review_env.models.EmailObservation
+action_type: email_review_env.models.EmailAction
 max_episode_steps: 3
 
 environment:
